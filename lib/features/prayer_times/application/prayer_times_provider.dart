@@ -20,9 +20,13 @@ final currentPositionProvider = FutureProvider<Position>((ref) {
 /// Resolves the raw GPS position to its city center, so prayer times match
 /// what an official per-city table would publish instead of drifting with
 /// GPS jitter between neighbors in the same city.
-final calculationLocationProvider = FutureProvider<CalculationLocation>((ref) async {
+final calculationLocationProvider = FutureProvider<CalculationLocation>((
+  ref,
+) async {
   final position = await ref.watch(currentPositionProvider.future);
-  return ref.watch(locationServiceProvider).resolveCalculationLocation(position);
+  return ref
+      .watch(locationServiceProvider)
+      .resolveCalculationLocation(position);
 });
 
 class TodayPrayerTimes {
@@ -59,44 +63,61 @@ final todayPrayerTimesProvider = FutureProvider<TodayPrayerTimes>((ref) async {
   );
 
   final times = service.asMap(today);
-
-  final notificationService = ref.watch(notificationServiceProvider);
-  await notificationService.initialize();
-  await notificationService.scheduleDailyPrayerNotifications(
-    times,
-    soundModes: settings.soundModes,
-    reciter: settings.reciter,
-    overrideSilentMode: settings.overrideSilentMode,
-    locale: Locale(settings.languageCode),
-  );
-
-  if (settings.azkarEnabled) {
-    await notificationService.scheduleRandomAzkarNotifications(count: settings.azkarCount);
-  } else {
-    await notificationService.cancelAllAzkarNotifications();
-  }
-
-  await notificationService.scheduleFridayKahfReminder(enabled: settings.fridayKahfReminderEnabled);
-
   final tomorrowFajr = tomorrow.fajr.toLocal();
-  final locale = Locale(settings.languageCode);
-  if (settings.nextPrayerStatusEnabled) {
-    final next = service.nextPrayer(times, now, tomorrowFajr: tomorrowFajr);
-    await notificationService.showNextPrayerStatus(prayer: next.prayer, time: next.time, locale: locale);
 
-    final following = service.nextPrayer(
+  // Notification scheduling is supplementary to showing prayer times — a
+  // failure here (e.g. a platform exception from the notifications plugin)
+  // must not take down the whole prayer-times screen with a misleading
+  // "location" error, since the times themselves already computed fine.
+  try {
+    final notificationService = ref.watch(notificationServiceProvider);
+    await notificationService.initialize();
+    await notificationService.scheduleDailyPrayerNotifications(
       times,
-      next.time.add(const Duration(seconds: 1)),
-      tomorrowFajr: tomorrowFajr,
+      soundModes: settings.soundModes,
+      reciter: settings.reciter,
+      overrideSilentMode: settings.overrideSilentMode,
+      locale: Locale(settings.languageCode),
     );
-    await notificationService.scheduleNextPrayerStatusUpdate(
-      currentNextTime: next.time,
-      followingPrayer: following.prayer,
-      followingTime: following.time,
-      locale: locale,
+
+    if (settings.azkarEnabled) {
+      await notificationService.scheduleRandomAzkarNotifications(
+        count: settings.azkarCount,
+      );
+    } else {
+      await notificationService.cancelAllAzkarNotifications();
+    }
+
+    await notificationService.scheduleFridayKahfReminder(
+      enabled: settings.fridayKahfReminderEnabled,
     );
-  } else {
-    await notificationService.cancelNextPrayerStatus();
+
+    final locale = Locale(settings.languageCode);
+    if (settings.nextPrayerStatusEnabled) {
+      final next = service.nextPrayer(times, now, tomorrowFajr: tomorrowFajr);
+      await notificationService.showNextPrayerStatus(
+        prayer: next.prayer,
+        time: next.time,
+        locale: locale,
+      );
+
+      final following = service.nextPrayer(
+        times,
+        next.time.add(const Duration(seconds: 1)),
+        tomorrowFajr: tomorrowFajr,
+      );
+      await notificationService.scheduleNextPrayerStatusUpdate(
+        currentNextTime: next.time,
+        followingPrayer: following.prayer,
+        followingTime: following.time,
+        locale: locale,
+      );
+    } else {
+      await notificationService.cancelNextPrayerStatus();
+    }
+  } catch (_) {
+    // Prayer times still display; notifications simply won't be scheduled
+    // until the underlying issue is resolved and this provider re-runs.
   }
 
   return TodayPrayerTimes(times: times, tomorrowFajr: tomorrowFajr);

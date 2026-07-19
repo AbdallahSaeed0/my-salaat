@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart' show Locale;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 
@@ -66,6 +67,7 @@ final todayPrayerTimesProvider = FutureProvider<TodayPrayerTimes>((ref) async {
     soundModes: settings.soundModes,
     reciter: settings.reciter,
     overrideSilentMode: settings.overrideSilentMode,
+    locale: Locale(settings.languageCode),
   );
 
   if (settings.azkarEnabled) {
@@ -76,5 +78,26 @@ final todayPrayerTimesProvider = FutureProvider<TodayPrayerTimes>((ref) async {
 
   await notificationService.scheduleFridayKahfReminder(enabled: settings.fridayKahfReminderEnabled);
 
-  return TodayPrayerTimes(times: times, tomorrowFajr: tomorrow.fajr.toLocal());
+  final tomorrowFajr = tomorrow.fajr.toLocal();
+  final locale = Locale(settings.languageCode);
+  if (settings.nextPrayerStatusEnabled) {
+    final next = service.nextPrayer(times, now, tomorrowFajr: tomorrowFajr);
+    await notificationService.showNextPrayerStatus(prayer: next.prayer, time: next.time, locale: locale);
+
+    final following = service.nextPrayer(
+      times,
+      next.time.add(const Duration(seconds: 1)),
+      tomorrowFajr: tomorrowFajr,
+    );
+    await notificationService.scheduleNextPrayerStatusUpdate(
+      currentNextTime: next.time,
+      followingPrayer: following.prayer,
+      followingTime: following.time,
+      locale: locale,
+    );
+  } else {
+    await notificationService.cancelNextPrayerStatus();
+  }
+
+  return TodayPrayerTimes(times: times, tomorrowFajr: tomorrowFajr);
 });

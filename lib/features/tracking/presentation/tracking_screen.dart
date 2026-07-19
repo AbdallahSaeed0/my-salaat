@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/models/prayer_status.dart';
 import '../../../core/services/prayer_time_service.dart';
+import '../../../l10n/generated/app_localizations.dart';
 import '../application/tracking_provider.dart';
 
 class TrackingScreen extends ConsumerWidget {
@@ -10,22 +11,23 @@ class TrackingScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final todayAsync = ref.watch(todayStatusesProvider);
     final streakAsync = ref.watch(currentStreakProvider);
     final actions = ref.watch(trackingActionsProvider);
     final now = DateTime.now();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Prayer Tracking')),
+      appBar: AppBar(title: Text(l10n.trackingTitle)),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 4, 20, 32),
         children: [
           _StreakCard(streak: streakAsync.valueOrNull ?? 0),
           const SizedBox(height: 28),
-          const _SectionLabel('Today'),
+          _SectionLabel(l10n.today),
           todayAsync.when(
             loading: () => const Center(child: CircularProgressIndicator()),
-            error: (e, _) => Text('Failed to load: $e'),
+            error: (e, _) => Text(l10n.failedToLoad(e.toString())),
             data: (statuses) => Card(
               child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 6),
@@ -48,7 +50,7 @@ class TrackingScreen extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 28),
-          const _SectionLabel('This Month'),
+          _SectionLabel(l10n.thisMonth),
           Card(
             child: Padding(
               padding: const EdgeInsets.all(12),
@@ -108,7 +110,7 @@ class _StreakCard extends StatelessWidget {
                 '$streak',
                 style: Theme.of(context).textTheme.displaySmall?.copyWith(color: colorScheme.primary),
               ),
-              Text('day streak', style: Theme.of(context).textTheme.bodyMedium),
+              Text(AppLocalizations.of(context).dayStreak, style: Theme.of(context).textTheme.bodyMedium),
             ],
           ),
         ],
@@ -126,19 +128,20 @@ class _TrackingRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final colorScheme = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
         children: [
-          SizedBox(width: 64, child: Text(prayer.label, style: const TextStyle(fontWeight: FontWeight.w600))),
+          SizedBox(width: 64, child: Text(prayer.label(l10n), style: const TextStyle(fontWeight: FontWeight.w600))),
           Expanded(
             child: Wrap(
               spacing: 6,
               children: PrayerStatus.values.map((s) {
                 final isSelected = status == s;
                 return ChoiceChip(
-                  label: Text(s.label),
+                  label: Text(s.label(l10n)),
                   selected: isSelected,
                   onSelected: (_) => onSelected(s),
                   showCheckmark: false,
@@ -167,11 +170,12 @@ class _MonthHeatmap extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final monthAsync = ref.watch(monthStatusesProvider(MonthKey(year, month)));
 
     return monthAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (e, _) => Text('Failed to load: $e'),
+      error: (e, _) => Text(l10n.failedToLoad(e.toString())),
       data: (statuses) {
         final daysInMonth = DateTime(year, month + 1, 0).day;
         final firstWeekday = DateTime(year, month, 1).weekday % 7;

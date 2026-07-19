@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
+import '../../l10n/generated/app_localizations.dart';
 import '../models/quran_ayah.dart';
 
 const _bismillah = 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ';
@@ -57,7 +58,7 @@ Future<void> showRandomAyahDialog(BuildContext context) {
         Center(
           child: TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('آمين'),
+            child: Text(AppLocalizations.of(context).ameen),
           ),
         ),
       ],

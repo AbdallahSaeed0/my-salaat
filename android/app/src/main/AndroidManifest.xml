@@ -7,10 +7,14 @@
     <uses-permission android:name="android.permission.USE_EXACT_ALARM"/>
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <uses-permission android:name="android.permission.VIBRATE"/>
+    <!-- Lets the app launch the system package installer for a downloaded
+         update APK (GitHub Releases in-app updater). -->
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES"/>
     <application
         android:label="My Salaat"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+        android:supportsRtl="true">
         <activity
             android:name=".MainActivity"
             android:exported="true"

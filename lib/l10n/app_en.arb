@@ -1,0 +1,190 @@
+{
+  "@@locale": "en",
+
+  "appTitle": "My Salaat",
+
+  "navHome": "Home",
+  "navQibla": "Qibla",
+  "navCalendar": "Calendar",
+  "navTracking": "Tracking",
+
+  "homeToday": "TODAY",
+  "homeNextPrayer": "NEXT PRAYER",
+  "retry": "Retry",
+  "settingsTooltip": "Settings",
+  "ameen": "Ameen",
+
+  "reciterDefaultName": "Adhan — Long",
+  "reciterSabahFakhryName": "Adhan — Sabah Fakhry (Long)",
+  "reciterShortName": "Adhan — Short",
+
+  "qiblaTitle": "Qibla Direction",
+  "qiblaCalibrate": "Compass needs calibration — move your phone in a figure-8 pattern.",
+  "qiblaFacing": "Facing the Qibla",
+  "qiblaRotate": "Rotate until the Kaaba marker lines up with the top pointer",
+  "qiblaNoCompass": "No compass sensor detected on this device.\nThe Qibla is {bearing}° from true North — use a physical compass and rotate to that bearing.",
+  "@qiblaNoCompass": {
+    "placeholders": { "bearing": { "type": "String" } }
+  },
+
+  "calendarTitle": "Calendar",
+  "today": "Today",
+  "calendarHijri": "Hijri",
+  "calendarGregorian": "Gregorian",
+  "hijriYearSuffix": "AH",
+
+  "trackingTitle": "Prayer Tracking",
+  "thisMonth": "This Month",
+  "dayStreak": "day streak",
+  "failedToLoad": "Failed to load: {error}",
+  "@failedToLoad": {
+    "placeholders": { "error": { "type": "String" } }
+  },
+
+  "settingsTitle": "Settings",
+  "tabPrayer": "Prayer",
+  "tabAdhan": "Adhan",
+  "tabReminders": "Reminders",
+  "tabProfile": "Profile",
+
+  "sectionCalculationMethod": "Calculation Method",
+  "sectionMadhab": "Asr Calculation (Madhab)",
+  "sectionManualAdjustments": "Manual Adjustments",
+  "manualAdjustmentsDesc": "Nudge each prayer to match your local mosque. Applies daily until changed.",
+  "minutesValueLabel": "{value} min",
+  "@minutesValueLabel": {
+    "placeholders": { "value": { "type": "String" } }
+  },
+  "sectionAdhanSound": "Adhan Sound",
+  "testNotificationTitle": "Test Notification",
+  "testNotificationDesc": "Fires a real notification now, exactly as a prayer time would.",
+  "testNotificationSent": "Test {mode} notification sent",
+  "@testNotificationSent": {
+    "placeholders": { "mode": { "type": "String" } }
+  },
+  "sendTestNotificationTooltip": "Send a test notification",
+  "previewTooltip": "Preview",
+  "stopTooltip": "Stop",
+  "overrideSilentTitle": "Play full Adhan even in Silent Mode",
+  "overrideSilentDesc": "Like an alarm — bypasses your phone's silent/vibrate setting.",
+  "overrideSilentDialogTitle": "Override Silent Mode?",
+  "overrideSilentDialogContent": "The full Adhan will play at full volume for prayers set to \"Full Adhan\", even if your phone is on silent or vibrate. Prayers set to Short Sound or Silent are not affected.",
+  "cancel": "Cancel",
+  "allow": "Allow",
+
+  "sectionAzkarReminders": "Azkar Reminders",
+  "azkarDesc": "Occasional dhikr reminders at random times through the day.",
+  "enableAzkarReminders": "Enable Azkar Reminders",
+  "remindersPerDay": "Reminders per day",
+  "testAzkarNotification": "Test Azkar Notification",
+  "testAzkarDesc": "Fires a random azkar reminder now.",
+  "testAzkarSent": "Test azkar notification sent",
+  "sendTestAzkarTooltip": "Send a test azkar notification",
+
+  "sectionFridayKahf": "Friday — Surah Al-Kahf",
+  "fridayKahfDesc": "A weekly reminder every Friday morning to read سورة الكهف.",
+  "enableFridayReminder": "Enable Friday Reminder",
+  "testFridayReminder": "Test Friday Reminder",
+  "testFridayDesc": "Fires the reminder now.",
+  "testFridaySent": "Test Friday reminder sent",
+  "sendTestFridayTooltip": "Send a test Friday reminder",
+
+  "sectionDailyAyah": "Daily Ayah",
+  "dailyAyahDesc": "Show a random Quranic ayah each time you open the app.",
+  "showAyahOnOpen": "Show Ayah on App Open",
+
+  "sectionNextPrayerStatus": "Next Prayer Notification",
+  "nextPrayerStatusDesc": "Shows a notification with the next prayer's name and time, updated automatically. You can dismiss it anytime — it'll come back the next time it's relevant.",
+  "enableNextPrayerStatus": "Show in Notification Bar",
+  "statusNotificationBody": "{prayer} at {time}",
+  "@statusNotificationBody": {
+    "placeholders": { "prayer": { "type": "String" }, "time": { "type": "String" } }
+  },
+
+  "sectionYourName": "Your Name",
+  "yourNameDesc": "Used for the greeting on the home screen.",
+  "enterYourName": "Enter your name",
+
+  "sectionAbout": "About",
+  "madeByCredit": "Made by Abdallah Saeed 🍕",
+  "appVersionLabel": "App Version",
+  "checkForUpdates": "Check for Updates",
+  "checkingForUpdates": "Checking for updates…",
+  "upToDate": "You're up to date",
+  "updateCheckFailed": "Couldn't check for updates. Check your connection and try again.",
+  "updateAvailableTitle": "Update Available",
+  "updateAvailableBody": "Version {version} is available. Update now?",
+  "@updateAvailableBody": {
+    "placeholders": { "version": { "type": "String" } }
+  },
+  "later": "Later",
+  "updateNow": "Update Now",
+  "downloading": "Downloading update…",
+  "updateDownloadFailed": "Couldn't download the update. Please try again.",
+  "updateInstallFailed": "Couldn't open the installer: {error}",
+  "@updateInstallFailed": {
+    "placeholders": { "error": { "type": "String" } }
+  },
+
+  "sectionLanguage": "Language",
+  "languageEnglish": "English",
+  "languageArabic": "Arabic",
+
+  "notificationsBlockedTitle": "Notifications Are Blocked",
+  "notificationsBlockedContent": "This app doesn't have permission to show notifications, so nothing will appear or play — not even real prayer/Azkar reminders. Enable notifications for My Salaat in system settings, then try the test again.",
+  "openSettings": "Open Settings",
+
+  "prayerFajr": "Fajr",
+  "prayerDhuhr": "Dhuhr",
+  "prayerAsr": "Asr",
+  "prayerMaghrib": "Maghrib",
+  "prayerIsha": "Isha",
+
+  "methodMuslimWorldLeague": "Muslim World League",
+  "methodEgyptian": "Egyptian General Authority",
+  "methodUmmAlQura": "Umm al-Qura",
+  "methodIsna": "Islamic Society of North America (ISNA)",
+  "methodKarachi": "University of Islamic Sciences, Karachi",
+  "methodDubai": "Dubai",
+  "methodKuwait": "Kuwait",
+  "methodQatar": "Qatar",
+  "methodSingapore": "Singapore",
+  "methodTehran": "Tehran",
+  "methodTurkiye": "Turkiye (Diyanet)",
+  "methodMoonsightingCommittee": "Moonsighting Committee",
+  "methodNorthAmerica": "North America",
+  "methodOther": "Other (default)",
+
+  "madhabShafi": "Shafi (standard)",
+  "madhabHanafi": "Hanafi",
+
+  "soundModeFull": "Full Adhan",
+  "soundModeShort": "Short Sound",
+  "soundModeSilent": "Silent (Vibrate)",
+  "soundModeFullCompact": "Full",
+  "soundModeShortCompact": "Short",
+  "soundModeSilentCompact": "Silent",
+
+  "statusPrayed": "Prayed",
+  "statusLate": "Prayed Late",
+  "statusMissed": "Missed",
+
+  "notificationPrayerTimeTitle": "{prayer} Prayer Time",
+  "@notificationPrayerTimeTitle": {
+    "placeholders": { "prayer": { "type": "String" } }
+  },
+  "notificationPrayerTimeBodySilent": "It's time for {prayer} prayer.",
+  "@notificationPrayerTimeBodySilent": {
+    "placeholders": { "prayer": { "type": "String" } }
+  },
+  "notificationPrayerTimeBody": "It's time for {prayer} prayer — {reciter}",
+  "@notificationPrayerTimeBody": {
+    "placeholders": { "prayer": { "type": "String" }, "reciter": { "type": "String" } }
+  },
+  "notificationTestTitle": "Test Notification",
+  "notificationTestBodySilent": "This is what a Silent prayer notification looks like.",
+  "notificationTestBody": "This is what a {mode} prayer notification sounds like.",
+  "@notificationTestBody": {
+    "placeholders": { "mode": { "type": "String" } }
+  }
+}

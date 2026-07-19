@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../l10n/generated/app_localizations.dart';
 import '../application/qibla_provider.dart';
 
 class QiblaScreen extends ConsumerWidget {
@@ -13,7 +14,7 @@ class QiblaScreen extends ConsumerWidget {
     final bearingAsync = ref.watch(qiblaBearingProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Qibla Direction')),
+      appBar: AppBar(title: Text(AppLocalizations.of(context).qiblaTitle)),
       body: bearingAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, _) => _CenteredMessage(
@@ -73,7 +74,7 @@ class _CompassView extends ConsumerWidget {
                       const SizedBox(width: 10),
                       Expanded(
                         child: Text(
-                          'Compass needs calibration — move your phone in a figure-8 pattern.',
+                          AppLocalizations.of(context).qiblaCalibrate,
                           style: TextStyle(color: colorScheme.onErrorContainer, fontSize: 13),
                         ),
                       ),
@@ -97,7 +98,7 @@ class _CompassView extends ConsumerWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      facingQibla ? 'Facing the Qibla' : 'Rotate until the Kaaba marker lines up with the top pointer',
+                      facingQibla ? AppLocalizations.of(context).qiblaFacing : AppLocalizations.of(context).qiblaRotate,
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                   ],
@@ -223,9 +224,7 @@ class _StaticBearingFallback extends StatelessWidget {
   Widget build(BuildContext context) {
     return _CenteredMessage(
       icon: Icons.explore_off_outlined,
-      message: 'No compass sensor detected on this device.\n'
-          'The Qibla is ${bearing.toStringAsFixed(1)}° from true North — '
-          'use a physical compass and rotate to that bearing.',
+      message: AppLocalizations.of(context).qiblaNoCompass(bearing.toStringAsFixed(1)),
     );
   }
 }

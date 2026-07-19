@@ -1,11 +1,14 @@
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart' show Locale;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
+import 'package:intl/intl.dart';
 import 'package:timezone/data/latest_all.dart' as tz_data;
 import 'package:timezone/timezone.dart' as tz;
 
+import '../../l10n/generated/app_localizations.dart';
 import '../models/adhan_sound_mode.dart';
 import '../models/azkar.dart';
 import 'prayer_time_service.dart';
@@ -41,7 +44,11 @@ class NotificationService {
     final localTimeZone = await FlutterTimezone.getLocalTimezone();
     tz.setLocalLocation(tz.getLocation(localTimeZone));
 
-    const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+    // A dedicated white-silhouette-on-transparent drawable — Android always
+    // strips color from the small icon (shown top-left) and renders only
+    // its alpha shape, so passing the full-color launcher icon here just
+    // shows a solid tinted blob instead of the logo's silhouette.
+    const androidSettings = AndroidInitializationSettings('ic_notification');
     const iosSettings = DarwinInitializationSettings(
       requestAlertPermission: true,
       requestBadgePermission: true,
@@ -61,23 +68,45 @@ class NotificationService {
   }
 
   Future<bool> requestPermissions() async {
-    final androidGranted = await _plugin
-        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
-        ?.requestNotificationsPermission();
+    final androidPlugin = _plugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+    final androidGranted = await androidPlugin?.requestNotificationsPermission();
     final iosGranted = await _plugin
         .resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>()
         ?.requestPermissions(alert: true, badge: true, sound: true);
+
+    // Android 12/12L require the user to manually grant "Alarms & reminders"
+    // in system settings before an exact alarm (zonedSchedule with
+    // exactAllowWhileIdle) will actually fire — without it, the OS silently
+    // downgrades or drops the scheduled alarm instead of throwing. Android
+    // 13+ auto-grants this for sideloaded/debug installs, and
+    // canScheduleExactNotifications() reflects both cases, so this is a
+    // no-op there.
+    final canScheduleExact = await androidPlugin?.canScheduleExactNotifications();
+    if (canScheduleExact == false) {
+      await androidPlugin?.requestExactAlarmsPermission();
+    }
+
     return (androidGranted ?? true) && (iosGranted ?? true);
   }
+
+  // Bumped whenever a change means previously-created channels on a user's
+  // device could be stuck with stale/broken settings (e.g. a sound resource
+  // that pointed at different audio in an earlier build). Baking the version
+  // into the id makes the app abandon the old channel and create a fresh one
+  // instead of silently reusing a possibly-broken one — createNotificationChannel()
+  // is a no-op on an id that already exists, so this is the only reliable way
+  // to self-heal without forcing a delete+recreate (and losing user channel
+  // customization) on every single app start.
+  static const _channelSchemaVersion = 2;
 
   String _channelId(String key, AdhanSoundMode mode, {required String reciterId, required bool overrideSilentMode}) {
     switch (mode) {
       case AdhanSoundMode.full:
-        return 'prayer_${key}_full_${reciterId}_${overrideSilentMode ? 'alarm' : 'notif'}';
+        return 'prayer_${key}_full_${reciterId}_${overrideSilentMode ? 'alarm' : 'notif'}_v$_channelSchemaVersion';
       case AdhanSoundMode.short:
-        return 'prayer_${key}_short';
+        return 'prayer_${key}_short_v$_channelSchemaVersion';
       case AdhanSoundMode.silent:
-        return 'prayer_${key}_silent';
+        return 'prayer_${key}_silent_v$_channelSchemaVersion';
     }
   }
 
@@ -143,18 +172,21 @@ class NotificationService {
     required Map<DailyPrayer, AdhanSoundMode> soundModes,
     required Reciter reciter,
     required bool overrideSilentMode,
+    required Locale locale,
   }) async {
     if (!_supportsScheduling) return;
     await cancelAllPrayerNotifications();
 
+    final l10n = lookupAppLocalizations(locale);
     final now = tz.TZDateTime.now(tz.local);
     for (final prayer in DailyPrayer.values) {
       final localTime = times[prayer]!;
       final scheduled = tz.TZDateTime.from(localTime, tz.local);
       if (scheduled.isBefore(now)) continue;
 
+      final prayerLabel = prayer.label(l10n);
       final mode = soundModes[prayer] ?? AdhanSoundMode.full;
-      await _ensureChannel(prayer.name, prayer.label, mode, reciter: reciter, overrideSilentMode: overrideSilentMode);
+      await _ensureChannel(prayer.name, prayerLabel, mode, reciter: reciter, overrideSilentMode: overrideSilentMode);
       final channelId = _channelId(prayer.name, mode, reciterId: reciter.id, overrideSilentMode: overrideSilentMode);
 
       final iosSoundFile = switch (mode) {
@@ -165,18 +197,19 @@ class NotificationService {
 
       await _plugin.zonedSchedule(
         _notificationId(prayer),
-        '${prayer.label} Prayer Time',
-        mode == AdhanSoundMode.silent ? "It's time for ${prayer.label} prayer." : 'It\'s time for ${prayer.label} prayer — ${reciter.name}',
+        l10n.notificationPrayerTimeTitle(prayerLabel),
+        mode == AdhanSoundMode.silent
+            ? l10n.notificationPrayerTimeBodySilent(prayerLabel)
+            : l10n.notificationPrayerTimeBody(prayerLabel, reciter.localizedName(l10n)),
         scheduled,
         NotificationDetails(
           android: AndroidNotificationDetails(
             channelId,
-            '${prayer.label} notifications',
-            channelDescription: 'Notifications for ${prayer.label}',
+            '$prayerLabel notifications',
+            channelDescription: 'Notifications for $prayerLabel',
             importance: Importance.max,
             priority: Priority.high,
             playSound: mode != AdhanSoundMode.silent,
-            largeIcon: const DrawableResourceAndroidBitmap('ic_launcher_notification'),
           ),
           iOS: DarwinNotificationDetails(
             presentAlert: true,
@@ -213,10 +246,12 @@ class NotificationService {
     required AdhanSoundMode mode,
     required Reciter reciter,
     required bool overrideSilentMode,
+    required Locale locale,
   }) async {
     if (!_supportsScheduling) return false;
     if (!await areNotificationsEnabled()) return false;
 
+    final l10n = lookupAppLocalizations(locale);
     const key = 'test';
     const label = 'Test';
     await _ensureChannel(key, label, mode, reciter: reciter, overrideSilentMode: overrideSilentMode, forceRecreate: true);
@@ -230,8 +265,8 @@ class NotificationService {
 
     await _plugin.show(
       9999,
-      'Test Notification',
-      mode == AdhanSoundMode.silent ? 'This is what a Silent prayer notification looks like.' : 'This is what a ${mode.label} prayer notification sounds like.',
+      l10n.notificationTestTitle,
+      mode == AdhanSoundMode.silent ? l10n.notificationTestBodySilent : l10n.notificationTestBody(mode.label(l10n)),
       NotificationDetails(
         android: AndroidNotificationDetails(
           channelId,
@@ -240,7 +275,6 @@ class NotificationService {
           importance: Importance.max,
           priority: Priority.high,
           playSound: mode != AdhanSoundMode.silent,
-          largeIcon: const DrawableResourceAndroidBitmap('ic_launcher_notification'),
         ),
         iOS: DarwinNotificationDetails(
           presentAlert: true,
@@ -329,7 +363,6 @@ class NotificationService {
             channelDescription: 'Occasional dhikr/azkar reminders through the day',
             importance: Importance.defaultImportance,
             priority: Priority.defaultPriority,
-            largeIcon: DrawableResourceAndroidBitmap('ic_launcher_notification'),
           ),
           iOS: DarwinNotificationDetails(presentAlert: true, presentBadge: false, presentSound: true),
         ),
@@ -366,7 +399,6 @@ class NotificationService {
           channelDescription: 'Occasional dhikr/azkar reminders through the day',
           importance: Importance.defaultImportance,
           priority: Priority.defaultPriority,
-          largeIcon: DrawableResourceAndroidBitmap('ic_launcher_notification'),
         ),
         iOS: DarwinNotificationDetails(presentAlert: true, presentBadge: false, presentSound: true),
       ),
@@ -421,7 +453,6 @@ class NotificationService {
           channelDescription: 'Weekly reminder to read Surah Al-Kahf on Fridays',
           importance: Importance.max,
           priority: Priority.high,
-          largeIcon: DrawableResourceAndroidBitmap('ic_launcher_notification'),
         ),
         iOS: DarwinNotificationDetails(presentAlert: true, presentBadge: true, presentSound: true),
       ),
@@ -455,11 +486,114 @@ class NotificationService {
           channelDescription: 'Weekly reminder to read Surah Al-Kahf on Fridays',
           importance: Importance.max,
           priority: Priority.high,
-          largeIcon: DrawableResourceAndroidBitmap('ic_launcher_notification'),
         ),
         iOS: DarwinNotificationDetails(presentAlert: true, presentBadge: true, presentSound: true),
       ),
     );
     return true;
+  }
+
+  static const _statusChannelId = 'next_prayer_status';
+  int get _statusNotificationId => 6000;
+
+  Future<void> _ensureStatusChannel() async {
+    final androidPlugin = _plugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+    const channel = AndroidNotificationChannel(
+      _statusChannelId,
+      'Next Prayer Status',
+      description: 'A dismissible, updating notification showing the next prayer',
+      importance: Importance.low,
+      playSound: false,
+      enableVibration: false,
+    );
+    await androidPlugin?.createNotificationChannel(channel);
+  }
+
+  /// [countdownTarget] drives Android's native chronometer: given a future
+  /// timestamp, the OS itself renders a live ticking countdown in the
+  /// notification with no repeated updates from the app — just a "when"
+  /// timestamp and two flags. Not supported on iOS; there it's a static
+  /// notification with no visible countdown.
+  NotificationDetails _statusNotificationDetails(DateTime countdownTarget) => NotificationDetails(
+        android: AndroidNotificationDetails(
+          _statusChannelId,
+          'Next Prayer Status',
+          channelDescription: 'A dismissible, updating notification showing the next prayer',
+          importance: Importance.low,
+          priority: Priority.low,
+          playSound: false,
+          enableVibration: false,
+          onlyAlertOnce: true,
+          ongoing: false,
+          showWhen: true,
+          when: countdownTarget.millisecondsSinceEpoch,
+          usesChronometer: true,
+          chronometerCountDown: true,
+        ),
+        iOS: const DarwinNotificationDetails(presentAlert: true, presentBadge: false, presentSound: false),
+      );
+
+  /// Shows (or replaces) the "next prayer" status notification immediately,
+  /// with a live countdown ticking down to [time] (see
+  /// [_statusNotificationDetails]). Freely dismissible — it simply
+  /// reappears the next time this or [scheduleNextPrayerStatusUpdate] runs.
+  Future<void> showNextPrayerStatus({
+    required DailyPrayer prayer,
+    required DateTime time,
+    required Locale locale,
+  }) async {
+    if (!_supportsScheduling) return;
+    final l10n = lookupAppLocalizations(locale);
+    await _ensureStatusChannel();
+    final timeText = DateFormat.jm(locale.languageCode).format(time);
+    await _plugin.show(
+      _statusNotificationId,
+      l10n.homeNextPrayer,
+      l10n.statusNotificationBody(prayer.label(l10n), timeText),
+      _statusNotificationDetails(time),
+    );
+  }
+
+  /// Arms exactly one future update of the status notification, timed at
+  /// [currentNextTime] (when the current "next prayer" arrives), showing
+  /// what becomes next *after* that — [followingPrayer]/[followingTime].
+  ///
+  /// Only one step is scheduled at a time (not all five prayer transitions)
+  /// because Android's alarm scheduling replaces any existing pending alarm
+  /// that shares a notification id the moment a new one is armed — chaining
+  /// multiple future updates under one id would silently cancel all but the
+  /// last. This single step self-corrects every time the app is opened
+  /// (each open re-arms the next step from wherever "now" actually is), so
+  /// the notification is always accurate on open and auto-advances through
+  /// the very next transition even if the app stays closed.
+  Future<void> scheduleNextPrayerStatusUpdate({
+    required DateTime currentNextTime,
+    required DailyPrayer followingPrayer,
+    required DateTime followingTime,
+    required Locale locale,
+  }) async {
+    if (!_supportsScheduling) return;
+    final scheduled = tz.TZDateTime.from(currentNextTime, tz.local);
+    final now = tz.TZDateTime.now(tz.local);
+    if (!scheduled.isAfter(now)) return;
+
+    final l10n = lookupAppLocalizations(locale);
+    await _ensureStatusChannel();
+    final timeText = DateFormat.jm(locale.languageCode).format(followingTime);
+
+    await _plugin.zonedSchedule(
+      _statusNotificationId,
+      l10n.homeNextPrayer,
+      l10n.statusNotificationBody(followingPrayer.label(l10n), timeText),
+      scheduled,
+      _statusNotificationDetails(followingTime),
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
+    );
+  }
+
+  Future<void> cancelNextPrayerStatus() async {
+    if (!_supportsScheduling) return;
+    await _plugin.cancel(_statusNotificationId);
   }
 }

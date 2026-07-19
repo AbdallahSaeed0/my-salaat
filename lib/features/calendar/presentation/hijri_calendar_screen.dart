@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:hijri/hijri_calendar.dart';
+import 'package:intl/intl.dart' hide TextDirection;
+
+import '../../../l10n/generated/app_localizations.dart';
 
 enum _ViewMode { hijri, gregorian }
 
@@ -14,8 +17,6 @@ class _HijriCalendarScreenState extends State<HijriCalendarScreen> {
   _ViewMode _mode = _ViewMode.hijri;
   late int _year;
   late int _month;
-
-  static const _weekdayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
   @override
   void initState() {
@@ -70,11 +71,21 @@ class _HijriCalendarScreenState extends State<HijriCalendarScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final languageCode = Localizations.localeOf(context).languageCode;
+    HijriCalendar.setLocal(languageCode);
+    final weekdayLabels = List.generate(
+      7,
+      // Jan 7 2024 is a Sunday; walking a week from there gives correct
+      // locale-formatted abbreviated weekday names without hardcoding them.
+      (i) => DateFormat('EEE', languageCode).format(DateTime(2024, 1, 7 + i)),
+    );
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Calendar'),
+        title: Text(l10n.calendarTitle),
         actions: [
-          IconButton(icon: const Icon(Icons.today), tooltip: 'Today', onPressed: _goToToday),
+          IconButton(icon: const Icon(Icons.today), tooltip: l10n.today, onPressed: _goToToday),
         ],
       ),
       body: Column(
@@ -82,16 +93,16 @@ class _HijriCalendarScreenState extends State<HijriCalendarScreen> {
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 12, 20, 4),
             child: SegmentedButton<_ViewMode>(
-              segments: const [
-                ButtonSegment(value: _ViewMode.hijri, label: Text('Hijri')),
-                ButtonSegment(value: _ViewMode.gregorian, label: Text('Gregorian')),
+              segments: [
+                ButtonSegment(value: _ViewMode.hijri, label: Text(l10n.calendarHijri)),
+                ButtonSegment(value: _ViewMode.gregorian, label: Text(l10n.calendarGregorian)),
               ],
               selected: {_mode},
               onSelectionChanged: (s) => _switchMode(s.first),
             ),
           ),
           _MonthHeader(
-            title: _mode == _ViewMode.hijri ? _hijriMonthTitle() : _gregorianMonthTitle(),
+            title: _mode == _ViewMode.hijri ? _hijriMonthTitle(l10n) : _gregorianMonthTitle(languageCode),
             onPrevious: () => _changeMonth(-1),
             onNext: () => _changeMonth(1),
           ),
@@ -99,7 +110,7 @@ class _HijriCalendarScreenState extends State<HijriCalendarScreen> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12),
             child: Row(
-              children: _weekdayLabels
+              children: weekdayLabels
                   .map((label) => Expanded(
                         child: Center(
                           child: Text(
@@ -123,30 +134,16 @@ class _HijriCalendarScreenState extends State<HijriCalendarScreen> {
     );
   }
 
-  String _hijriMonthTitle() {
+  String _hijriMonthTitle(AppLocalizations l10n) {
     final cal = HijriCalendar()
       ..hYear = _year
       ..hMonth = _month
       ..hDay = 1;
-    return '${cal.getLongMonthName()} $_year AH';
+    return '${cal.getLongMonthName()} $_year ${l10n.hijriYearSuffix}';
   }
 
-  String _gregorianMonthTitle() {
-    const names = [
-      'January',
-      'February',
-      'March',
-      'April',
-      'May',
-      'June',
-      'July',
-      'August',
-      'September',
-      'October',
-      'November',
-      'December',
-    ];
-    return '${names[_month - 1]} $_year';
+  String _gregorianMonthTitle(String languageCode) {
+    return DateFormat.yMMMM(languageCode).format(DateTime(_year, _month));
   }
 }
 
@@ -289,7 +286,7 @@ class _DayCell extends StatelessWidget {
   }
 }
 
-/// Tiny "d/m" formatter to avoid pulling `intl` into this file just for a
+/// Tiny "d/m" formatter to avoid pulling in a full DateFormat for a
 /// two-number label.
 class DateFormatShort {
   static String format(DateTime date) => '${date.day}/${date.month}';

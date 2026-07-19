@@ -1,5 +1,6 @@
 import 'package:adhan_dart/adhan_dart.dart';
 
+import '../../l10n/generated/app_localizations.dart';
 import '../models/calculation_settings.dart';
 
 /// The five daily obligatory prayers (excludes sunrise, which adhan_dart
@@ -7,18 +8,18 @@ import '../models/calculation_settings.dart';
 enum DailyPrayer { fajr, dhuhr, asr, maghrib, isha }
 
 extension DailyPrayerLabel on DailyPrayer {
-  String get label {
+  String label(AppLocalizations l10n) {
     switch (this) {
       case DailyPrayer.fajr:
-        return 'Fajr';
+        return l10n.prayerFajr;
       case DailyPrayer.dhuhr:
-        return 'Dhuhr';
+        return l10n.prayerDhuhr;
       case DailyPrayer.asr:
-        return 'Asr';
+        return l10n.prayerAsr;
       case DailyPrayer.maghrib:
-        return 'Maghrib';
+        return l10n.prayerMaghrib;
       case DailyPrayer.isha:
-        return 'Isha';
+        return l10n.prayerIsha;
     }
   }
 }

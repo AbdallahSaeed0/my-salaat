@@ -18,6 +18,8 @@ class PrayerSettings {
     required this.showAyahOnOpen,
     required this.fridayKahfReminderEnabled,
     required this.userName,
+    required this.languageCode,
+    required this.nextPrayerStatusEnabled,
   });
 
   final PrayerCalculationMethod method;
@@ -54,6 +56,13 @@ class PrayerSettings {
   /// not set.
   final String userName;
 
+  /// App UI language: 'en' or 'ar'.
+  final String languageCode;
+
+  /// Whether to show a dismissible notification with the next prayer's
+  /// name/time.
+  final bool nextPrayerStatusEnabled;
+
   Reciter get reciter => availableReciters.firstWhere(
         (r) => r.id == reciterId,
         orElse: () => defaultReciter,
@@ -71,6 +80,8 @@ class PrayerSettings {
     bool? showAyahOnOpen,
     bool? fridayKahfReminderEnabled,
     String? userName,
+    String? languageCode,
+    bool? nextPrayerStatusEnabled,
   }) =>
       PrayerSettings(
         method: method ?? this.method,
@@ -84,6 +95,8 @@ class PrayerSettings {
         showAyahOnOpen: showAyahOnOpen ?? this.showAyahOnOpen,
         fridayKahfReminderEnabled: fridayKahfReminderEnabled ?? this.fridayKahfReminderEnabled,
         userName: userName ?? this.userName,
+        languageCode: languageCode ?? this.languageCode,
+        nextPrayerStatusEnabled: nextPrayerStatusEnabled ?? this.nextPrayerStatusEnabled,
       );
 }
 
@@ -101,9 +114,18 @@ class PrayerSettingsNotifier extends StateNotifier<PrayerSettings> {
           showAyahOnOpen: true,
           fridayKahfReminderEnabled: true,
           userName: '',
+          languageCode: 'en',
+          nextPrayerStatusEnabled: true,
         )) {
-    _load();
+    _loadFuture = _load();
   }
+
+  /// Resolves once persisted settings have been read from disk. Reading
+  /// [PrayerSettings] fields before this completes (e.g. right after app
+  /// launch) risks seeing the constructor's defaults instead of what the
+  /// user actually saved, since [SharedPreferences] loads asynchronously.
+  late final Future<void> _loadFuture;
+  Future<void> get ready => _loadFuture;
 
   static const _methodKey = 'calculation_method';
   static const _madhabKey = 'madhab';
@@ -114,6 +136,8 @@ class PrayerSettingsNotifier extends StateNotifier<PrayerSettings> {
   static const _showAyahOnOpenKey = 'show_ayah_on_open';
   static const _fridayKahfReminderKey = 'friday_kahf_reminder_enabled';
   static const _userNameKey = 'user_name';
+  static const _languageCodeKey = 'language_code';
+  static const _nextPrayerStatusEnabledKey = 'next_prayer_status_enabled';
   static String _adjustmentKey(DailyPrayer prayer) => 'adjustment_${prayer.name}';
   static String _soundModeKey(DailyPrayer prayer) => 'sound_mode_${prayer.name}';
 
@@ -156,6 +180,8 @@ class PrayerSettingsNotifier extends StateNotifier<PrayerSettings> {
       showAyahOnOpen: prefs.getBool(_showAyahOnOpenKey) ?? true,
       fridayKahfReminderEnabled: prefs.getBool(_fridayKahfReminderKey) ?? true,
       userName: prefs.getString(_userNameKey) ?? '',
+      languageCode: prefs.getString(_languageCodeKey) ?? 'en',
+      nextPrayerStatusEnabled: prefs.getBool(_nextPrayerStatusEnabledKey) ?? true,
     );
   }
 
@@ -225,6 +251,18 @@ class PrayerSettingsNotifier extends StateNotifier<PrayerSettings> {
     state = state.copyWith(userName: name);
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_userNameKey, name);
+  }
+
+  Future<void> setLanguageCode(String code) async {
+    state = state.copyWith(languageCode: code);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_languageCodeKey, code);
+  }
+
+  Future<void> setNextPrayerStatusEnabled(bool value) async {
+    state = state.copyWith(nextPrayerStatusEnabled: value);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_nextPrayerStatusEnabledKey, value);
   }
 }
 

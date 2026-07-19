@@ -1,17 +1,26 @@
+import '../../l10n/generated/app_localizations.dart';
+
 /// How a prayer notification should sound when it fires.
 enum AdhanSoundMode {
   /// Plays the full Adhan recording.
-  full('Full Adhan'),
+  full,
 
   /// Plays a short notification chime instead of the full recording.
-  short('Short Sound'),
+  short,
 
   /// No sound — vibration only (subject to device vibration settings).
-  silent('Silent (Vibrate)');
+  silent;
 
-  const AdhanSoundMode(this.label);
-
-  final String label;
+  String label(AppLocalizations l10n) {
+    switch (this) {
+      case AdhanSoundMode.full:
+        return l10n.soundModeFull;
+      case AdhanSoundMode.short:
+        return l10n.soundModeShort;
+      case AdhanSoundMode.silent:
+        return l10n.soundModeSilent;
+    }
+  }
 }
 
 /// A selectable reciter for the full-Adhan sound.
@@ -60,6 +69,21 @@ const shortReciter = Reciter(
 );
 
 const availableReciters = [defaultReciter, sabahFakhryReciter, shortReciter];
+
+extension ReciterLabel on Reciter {
+  String localizedName(AppLocalizations l10n) {
+    switch (id) {
+      case 'default':
+        return l10n.reciterDefaultName;
+      case 'sabah_fakhry':
+        return l10n.reciterSabahFakhryName;
+      case 'short':
+        return l10n.reciterShortName;
+      default:
+        return name;
+    }
+  }
+}
 
 const shortSoundAssetPath = 'assets/audio/short_beep.wav';
 const shortSoundAndroidRawResource = 'short_beep';

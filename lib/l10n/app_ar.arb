@@ -1,0 +1,190 @@
+{
+  "@@locale": "ar",
+
+  "appTitle": "صلاتي",
+
+  "navHome": "الرئيسية",
+  "navQibla": "القبلة",
+  "navCalendar": "التقويم",
+  "navTracking": "المتابعة",
+
+  "homeToday": "اليوم",
+  "homeNextPrayer": "الصلاة القادمة",
+  "retry": "إعادة المحاولة",
+  "settingsTooltip": "الإعدادات",
+  "ameen": "آمين",
+
+  "reciterDefaultName": "أذان — طويل",
+  "reciterSabahFakhryName": "أذان — صباح فخري (طويل)",
+  "reciterShortName": "أذان — قصير",
+
+  "qiblaTitle": "اتجاه القبلة",
+  "qiblaCalibrate": "البوصلة تحتاج إلى معايرة — حرّك هاتفك على شكل رقم 8.",
+  "qiblaFacing": "أنت متجه نحو القبلة",
+  "qiblaRotate": "استدر حتى تتوافق علامة الكعبة مع المؤشر العلوي",
+  "qiblaNoCompass": "لم يتم العثور على حساس بوصلة في هذا الجهاز.\nاتجاه القبلة هو {bearing}° من الشمال الحقيقي — استخدم بوصلة عادية واستدر إلى هذا الاتجاه.",
+  "@qiblaNoCompass": {
+    "placeholders": { "bearing": { "type": "String" } }
+  },
+
+  "calendarTitle": "التقويم",
+  "today": "اليوم",
+  "calendarHijri": "هجري",
+  "calendarGregorian": "ميلادي",
+  "hijriYearSuffix": "هـ",
+
+  "trackingTitle": "متابعة الصلاة",
+  "thisMonth": "هذا الشهر",
+  "dayStreak": "يوم متتالي",
+  "failedToLoad": "فشل التحميل: {error}",
+  "@failedToLoad": {
+    "placeholders": { "error": { "type": "String" } }
+  },
+
+  "settingsTitle": "الإعدادات",
+  "tabPrayer": "الصلاة",
+  "tabAdhan": "الأذان",
+  "tabReminders": "التذكيرات",
+  "tabProfile": "الملف الشخصي",
+
+  "sectionCalculationMethod": "طريقة الحساب",
+  "sectionMadhab": "حساب العصر (المذهب)",
+  "sectionManualAdjustments": "التعديلات اليدوية",
+  "manualAdjustmentsDesc": "اضبط كل صلاة لتطابق مسجدك المحلي. يُطبَّق يوميًا حتى تغييره.",
+  "minutesValueLabel": "{value} د",
+  "@minutesValueLabel": {
+    "placeholders": { "value": { "type": "String" } }
+  },
+  "sectionAdhanSound": "صوت الأذان",
+  "testNotificationTitle": "اختبار الإشعار",
+  "testNotificationDesc": "يرسل إشعارًا حقيقيًا الآن، تمامًا كما يحدث عند دخول وقت الصلاة.",
+  "testNotificationSent": "تم إرسال إشعار اختبار {mode}",
+  "@testNotificationSent": {
+    "placeholders": { "mode": { "type": "String" } }
+  },
+  "sendTestNotificationTooltip": "إرسال إشعار تجريبي",
+  "previewTooltip": "معاينة",
+  "stopTooltip": "إيقاف",
+  "overrideSilentTitle": "تشغيل الأذان كاملاً حتى في الوضع الصامت",
+  "overrideSilentDesc": "مثل المنبه — يتجاوز وضع الصامت/الاهتزاز في هاتفك.",
+  "overrideSilentDialogTitle": "تجاوز الوضع الصامت؟",
+  "overrideSilentDialogContent": "سيتم تشغيل الأذان الكامل بصوت عالٍ للصلوات المضبوطة على \"الأذان الكامل\"، حتى لو كان هاتفك في وضع الصامت أو الاهتزاز. الصلوات المضبوطة على صوت قصير أو صامت لن تتأثر.",
+  "cancel": "إلغاء",
+  "allow": "سماح",
+
+  "sectionAzkarReminders": "تذكيرات الأذكار",
+  "azkarDesc": "تذكيرات أذكار عرضية في أوقات عشوائية خلال اليوم.",
+  "enableAzkarReminders": "تفعيل تذكيرات الأذكار",
+  "remindersPerDay": "عدد التذكيرات يوميًا",
+  "testAzkarNotification": "اختبار إشعار الأذكار",
+  "testAzkarDesc": "يرسل تذكير أذكار عشوائي الآن.",
+  "testAzkarSent": "تم إرسال إشعار أذكار تجريبي",
+  "sendTestAzkarTooltip": "إرسال إشعار أذكار تجريبي",
+
+  "sectionFridayKahf": "الجمعة — سورة الكهف",
+  "fridayKahfDesc": "تذكير أسبوعي كل صباح جمعة بقراءة سورة الكهف.",
+  "enableFridayReminder": "تفعيل تذكير الجمعة",
+  "testFridayReminder": "اختبار تذكير الجمعة",
+  "testFridayDesc": "يرسل التذكير الآن.",
+  "testFridaySent": "تم إرسال تذكير الجمعة التجريبي",
+  "sendTestFridayTooltip": "إرسال تذكير جمعة تجريبي",
+
+  "sectionDailyAyah": "آية اليوم",
+  "dailyAyahDesc": "عرض آية قرآنية عشوائية في كل مرة تفتح فيها التطبيق.",
+  "showAyahOnOpen": "عرض آية عند فتح التطبيق",
+
+  "sectionNextPrayerStatus": "إشعار الصلاة القادمة",
+  "nextPrayerStatusDesc": "يعرض إشعارًا باسم الصلاة القادمة ووقتها، ويُحدَّث تلقائيًا. يمكنك إزالته في أي وقت — سيظهر مجددًا عند الحاجة.",
+  "enableNextPrayerStatus": "إظهار في شريط الإشعارات",
+  "statusNotificationBody": "{prayer} الساعة {time}",
+  "@statusNotificationBody": {
+    "placeholders": { "prayer": { "type": "String" }, "time": { "type": "String" } }
+  },
+
+  "sectionYourName": "اسمك",
+  "yourNameDesc": "يُستخدم للتحية في الشاشة الرئيسية.",
+  "enterYourName": "أدخل اسمك",
+
+  "sectionAbout": "حول التطبيق",
+  "madeByCredit": "صُنع بواسطة عبدالله سعيد 🍕",
+  "appVersionLabel": "إصدار التطبيق",
+  "checkForUpdates": "التحقق من التحديثات",
+  "checkingForUpdates": "جارٍ التحقق من التحديثات…",
+  "upToDate": "التطبيق محدَّث بالفعل",
+  "updateCheckFailed": "تعذّر التحقق من التحديثات. تحقق من اتصالك وحاول مرة أخرى.",
+  "updateAvailableTitle": "يتوفر تحديث",
+  "updateAvailableBody": "الإصدار {version} متوفر الآن. هل تريد التحديث؟",
+  "@updateAvailableBody": {
+    "placeholders": { "version": { "type": "String" } }
+  },
+  "later": "لاحقًا",
+  "updateNow": "تحديث الآن",
+  "downloading": "جارٍ تنزيل التحديث…",
+  "updateDownloadFailed": "تعذّر تنزيل التحديث. حاول مرة أخرى.",
+  "updateInstallFailed": "تعذّر فتح المثبِّت: {error}",
+  "@updateInstallFailed": {
+    "placeholders": { "error": { "type": "String" } }
+  },
+
+  "sectionLanguage": "اللغة",
+  "languageEnglish": "الإنجليزية",
+  "languageArabic": "العربية",
+
+  "notificationsBlockedTitle": "الإشعارات محظورة",
+  "notificationsBlockedContent": "لا يملك هذا التطبيق إذن عرض الإشعارات، لذلك لن يظهر أو يُشغَّل أي شيء — ولا حتى تذكيرات الصلاة أو الأذكار الحقيقية. فعّل الإشعارات لتطبيق صلاتي من إعدادات النظام، ثم أعد المحاولة.",
+  "openSettings": "فتح الإعدادات",
+
+  "prayerFajr": "الفجر",
+  "prayerDhuhr": "الظهر",
+  "prayerAsr": "العصر",
+  "prayerMaghrib": "المغرب",
+  "prayerIsha": "العشاء",
+
+  "methodMuslimWorldLeague": "رابطة العالم الإسلامي",
+  "methodEgyptian": "الهيئة المصرية العامة للمساحة",
+  "methodUmmAlQura": "أم القرى",
+  "methodIsna": "الجمعية الإسلامية لأمريكا الشمالية",
+  "methodKarachi": "جامعة العلوم الإسلامية، كراتشي",
+  "methodDubai": "دبي",
+  "methodKuwait": "الكويت",
+  "methodQatar": "قطر",
+  "methodSingapore": "سنغافورة",
+  "methodTehran": "طهران",
+  "methodTurkiye": "تركيا (ديانت)",
+  "methodMoonsightingCommittee": "لجنة رؤية الهلال",
+  "methodNorthAmerica": "أمريكا الشمالية",
+  "methodOther": "أخرى (افتراضي)",
+
+  "madhabShafi": "الشافعي (قياسي)",
+  "madhabHanafi": "الحنفي",
+
+  "soundModeFull": "الأذان كاملاً",
+  "soundModeShort": "صوت قصير",
+  "soundModeSilent": "صامت (اهتزاز)",
+  "soundModeFullCompact": "كامل",
+  "soundModeShortCompact": "قصير",
+  "soundModeSilentCompact": "صامت",
+
+  "statusPrayed": "صليت",
+  "statusLate": "صليت متأخرًا",
+  "statusMissed": "فاتتني",
+
+  "notificationPrayerTimeTitle": "وقت صلاة {prayer}",
+  "@notificationPrayerTimeTitle": {
+    "placeholders": { "prayer": { "type": "String" } }
+  },
+  "notificationPrayerTimeBodySilent": "حان وقت صلاة {prayer}.",
+  "@notificationPrayerTimeBodySilent": {
+    "placeholders": { "prayer": { "type": "String" } }
+  },
+  "notificationPrayerTimeBody": "حان وقت صلاة {prayer} — {reciter}",
+  "@notificationPrayerTimeBody": {
+    "placeholders": { "prayer": { "type": "String" }, "reciter": { "type": "String" } }
+  },
+  "notificationTestTitle": "إشعار تجريبي",
+  "notificationTestBodySilent": "هذا شكل إشعار الصلاة الصامت.",
+  "notificationTestBody": "هذا صوت إشعار صلاة {mode}.",
+  "@notificationTestBody": {
+    "placeholders": { "mode": { "type": "String" } }
+  }
+}

@@ -6,6 +6,7 @@ import 'package:hijri/hijri_calendar.dart';
 import 'package:intl/intl.dart' hide TextDirection;
 
 import '../../../core/services/prayer_time_service.dart';
+import '../../../l10n/generated/app_localizations.dart';
 import '../../settings/application/settings_provider.dart';
 import '../../settings/presentation/settings_screen.dart';
 import '../application/prayer_times_provider.dart';
@@ -37,6 +38,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final prayerTimesAsync = ref.watch(todayPrayerTimesProvider);
     final prayerTimeService = ref.watch(prayerTimeServiceProvider);
     final calculationLocation = ref.watch(calculationLocationProvider).valueOrNull;
@@ -44,11 +46,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My Salaat'),
+        title: Text(l10n.appTitle),
         actions: [
           IconButton(
             icon: const Icon(Icons.settings_outlined),
-            tooltip: 'Settings',
+            tooltip: l10n.settingsTooltip,
             onPressed: () => Navigator.of(context).push(
               MaterialPageRoute(builder: (_) => const SettingsScreen()),
             ),
@@ -87,7 +89,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 Padding(
                   padding: const EdgeInsets.only(left: 4, bottom: 12),
                   child: Text(
-                    'TODAY',
+                    l10n.homeToday,
                     style: Theme.of(context)
                         .textTheme
                         .labelLarge
@@ -143,8 +145,10 @@ class _DateHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final languageCode = Localizations.localeOf(context).languageCode;
     final now = DateTime.now();
-    final gregorian = DateFormat.yMMMMd().format(now);
+    final gregorian = DateFormat.yMMMMd(languageCode).format(now);
+    HijriCalendar.setLocal(languageCode);
     final hijri = HijriCalendar.now().fullDate();
     final colorScheme = Theme.of(context).colorScheme;
 
@@ -178,6 +182,8 @@ class _NextPrayerCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final languageCode = Localizations.localeOf(context).languageCode;
     final remaining = time.difference(now);
     final hours = remaining.inHours;
     final minutes = remaining.inMinutes.remainder(60);
@@ -206,7 +212,7 @@ class _NextPrayerCard extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               Text(
-                'NEXT PRAYER',
+                l10n.homeNextPrayer,
                 style: Theme.of(context)
                     .textTheme
                     .labelLarge
@@ -216,12 +222,12 @@ class _NextPrayerCard extends StatelessWidget {
           ),
           const SizedBox(height: 14),
           Text(
-            prayer.label,
+            prayer.label(l10n),
             style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w800),
           ),
           const SizedBox(height: 4),
           Text(
-            DateFormat.jm().format(time),
+            DateFormat.jm(languageCode).format(time),
             style: Theme.of(context).textTheme.titleMedium?.copyWith(color: colorScheme.onSurfaceVariant),
           ),
           const SizedBox(height: 24),
@@ -248,6 +254,8 @@ class _PrayerRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final languageCode = Localizations.localeOf(context).languageCode;
     final colorScheme = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
@@ -265,7 +273,7 @@ class _PrayerRow extends StatelessWidget {
           const SizedBox(width: 16),
           Expanded(
             child: Text(
-              prayer.label,
+              prayer.label(l10n),
               style: Theme.of(context)
                   .textTheme
                   .titleMedium
@@ -273,7 +281,7 @@ class _PrayerRow extends StatelessWidget {
             ),
           ),
           Text(
-            DateFormat.jm().format(time),
+            DateFormat.jm(languageCode).format(time),
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   color: isNext ? colorScheme.primary : colorScheme.onSurfaceVariant,
                   fontFeatures: const [FontFeature.tabularFigures()],
@@ -293,6 +301,7 @@ class _ErrorView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return LayoutBuilder(
       builder: (context, constraints) => SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
@@ -308,7 +317,7 @@ class _ErrorView extends StatelessWidget {
                   const SizedBox(height: 16),
                   Text(message, textAlign: TextAlign.center),
                   const SizedBox(height: 20),
-                  FilledButton(onPressed: onRetry, child: const Text('Retry')),
+                  FilledButton(onPressed: onRetry, child: Text(l10n.retry)),
                 ],
               ),
             ),
